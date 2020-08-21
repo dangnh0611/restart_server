@@ -1,5 +1,5 @@
 # restart_server
-restart server: start services, logging, health-check
+restart server: schedule shutdown, start/stop/restart services, logging, health-check
 
 ## Health-check on agents
 ### Install Netdata
@@ -38,7 +38,57 @@ Verify that gpu monitoring is enabled
 
 ### Multihost monitoring
 Netdata does its jobs by running an unique Netdata service on each hosts.
-To claim node, follow the instructions at https://learn.netdata.cloud/docs/agent/claim 
+To claim nodes or easily multi-hosts monitoring, follow the instructions of [Cloud intergrating](https://learn.netdata.cloud/docs/agent/agent-cloud) or [Claiming your nodes](https://learn.netdata.cloud/docs/agent/claim).
 
+## Cronjobs
+Use root's crontab to edit crontab configuration:
+```bash
+sudo crontab -e
+```
+>Note: sudo is needed if cronjobs you want to perform need the root privilege. Otherwise, sudo is not necessary.
 
+Quotes: 
+```
+usage:  crontab [-u user] file
+        crontab [ -u user ] [ -i ] { -e | -l | -r }
+                (default operation is replace, per 1003.2)
+        -e      (edit user's crontab)
+        -l      (list user's crontab)
+        -r      (delete user's crontab)
+        -i      (prompt before deleting user's crontab)
+```
+Add or remove lines to suite your need with the following template:
+```bash
+m h dom mon dow command
+# more detail
+<minute> <hour> <day_of_month> <month> <day_of_week> <command>
+```
+and
+- `*`: all possible values
+- `value1-value2`: value in the range [value1, value2].
+- `v1, v2, v3`: value in a set
+- `range/jump`: in range with a jump value, *i.e `*/4` mean each 4 units*
+- Some quick anotations: `@reboot`, `@hourly`,..
 
+## Startup jobs
+Add the following line to crontab configuration as in [Cronjobs](#cronjobs) section above:
+```
+@reboot command
+```
+i.e `@reboot ls -la > ~/log.txt`
+
+## Sample
+- Edit scripts in [scripts/](scripts/).
+- ```bash
+  $ sudo chmod -R +x scripts/
+  $ sudo cp -a scripts/.  /usr/local/sbin/
+    ```  
+- Sample crontab configurations:
+    ```bash
+    # Start services and programs at system start
+    @reboot sudo start.sh >> /var/log/start.log 2>&1
+    # Stop/cleanup services, terminate programs then shutdown
+    0 0 * * * sudo stop.sh >> /var/log/stop.log 2>&1 && shutdown +15 "Crontab warning: This computer will be turned off in less than 15 mins."
+    # Service health-check and restart if needed each 30 minutes
+    */30 * * * * sudo service-check.sh >> /var/log/service-check.log 2>&1
+    ```
