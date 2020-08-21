@@ -1,6 +1,18 @@
 # restart_server
-restart server: schedule shutdown, start/stop/restart services, logging, health-check
+restart server: schedule shutdown, start/stop/restart services, logging, health-check  
 
+---
+
+Table of contents:
+  - [Health-check on agents](#health-check-on-agents)
+    - [Install Netdata](#install-netdata)
+    - [Enable GPU monitoring](#enable-gpu-monitoring)
+    - [Multihost monitoring](#multihost-monitoring)
+  - [Cronjobs](#cronjobs)
+  - [Startup jobs](#startup-jobs)
+  - [Sample](#sample)
+
+---
 ## Health-check on agents
 ### Install Netdata
 Netdata can be easily downloaded and installed via `curl` and installer script:
